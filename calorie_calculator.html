@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>🔥 热量计算器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #0a0e1a;
+            color: #fff;
+            min-height: 100vh;
+            padding-bottom: 40px;
+        }
+        
+        .header {
+            text-align: center;
+            padding: 30px 20px 20px;
+        }
+        
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, #ff6b35, #f7931e);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .header p {
+            color: #8b92a8;
+            font-size: 14px;
+        }
+        
+        .container {
+            max-width: 480px;
+            margin: 0 auto;
+            padding: 0 16px;
+        }
+        
+        .card {
+            background: #151b2d;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 16px;
+            border: 1px solid #1e2744;
+        }
+        
+        .card-title {
+            font-size: 16px;
+            color: #8b92a8;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .gender-select {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        
+        .gender-btn {
+            flex: 1;
+            padding: 14px;
+            border-radius: 12px;
+            border: 2px solid #1e2744;
+            background: #1a2235;
+            color: #8b92a8;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
+        
+        .gender-btn.active {
+            border-color: #4a9eff;
+            background: rgba(74, 158, 255, 0.15);
+            color: #4a9eff;
+        }
+        
+        .gender-btn.female.active {
+            border-color: #ff6b9d;
+            background: rgba(255, 107, 157, 0.15);
+            color: #ff6b9d;
+        }
+        
+        .input-group {
+            margin-bottom: 16px;
+        }
+        
+        .input-group label {
+            display: block;
+            color: #8b92a8;
+            font-size: 13px;
+            margin-bottom: 8px;
+        }
+        
+        .input-field {
+            width: 100%;
+            padding: 14px 16px;
+            border-radius: 12px;
+            border: 1px solid #1e2744;
+            background: #1a2235;
+            color: #fff;
+            font-size: 16px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+        
+        .input-field:focus {
+            border-color: #ff6b35;
+        }
+        
+        .input-field::placeholder {
+            color: #4a5066;
+        }
+        
+        .option-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .option-item {
+            padding: 12px 16px;
+            border-radius: 10px;
+            background: #1a2235;
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .option-item:hover {
+            background: #1e2744;
+        }
+        
+        .option-item.active {
+            border-color: #4a9eff;
+            background: rgba(74, 158, 255, 0.1);
+        }
+        
+        .option-item.goal.active {
+            border-color: #ff6b35;
+            background: rgba(255, 107, 53, 0.1);
+        }
+        
+        .option-name {
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        .option-desc {
+            font-size: 12px;
+            color: #8b92a8;
+        }
+        
+        .calc-btn {
+            width: 100%;
+            padding: 16px;
+            border-radius: 14px;
+            border: none;
+            background: linear-gradient(135deg, #ff6b35, #f7931e);
+            color: #fff;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            margin: 20px 0;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .calc-btn:active {
+            transform: scale(0.98);
+        }
+        
+        .result-card {
+            background: #151b2d;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 16px;
+            border: 1px solid #1e2744;
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .result-card.show {
+            display: block;
+        }
+        
+        .result-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .result-title.calories { color: #ff6b35; }
+        .result-title.macro { color: #4cd964; }
+        
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #1e2744;
+        }
+        
+        .result-item:last-child {
+            border-bottom: none;
+        }
+        
+        .result-label {
+            color: #8b92a8;
+            font-size: 14px;
+        }
+        
+        .result-value {
+            font-size: 16px;
+            font-weight: 700;
+        }
+        
+        .result-value.highlight {
+            color: #ff6b35;
+            font-size: 28px;
+        }
+        
+        .macro-bar {
+            margin: 12px 0;
+        }
+        
+        .macro-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 6px;
+            font-size: 13px;
+        }
+        
+        .macro-name { color: #8b92a8; }
+        .macro-value { color: #fff; font-weight: 600; }
+        
+        .macro-progress {
+            height: 8px;
+            background: #1a2235;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .macro-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.8s ease;
+        }
+        
+        .macro-fill.protein { background: #4a9eff; }
+        .macro-fill.fat { background: #ff6b35; }
+        .macro-fill.carb { background: #4cd964; }
+        
+        .formula-info {
+            text-align: center;
+            padding: 20px;
+            color: #4a5066;
+            font-size: 12px;
+        }
+        
+        .nav-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+            overflow-x: auto;
+            padding-bottom: 4px;
+        }
+        
+        .nav-tab {
+            padding: 10px 20px;
+            border-radius: 10px;
+            background: #1a2235;
+            color: #8b92a8;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+            border: none;
+            transition: all 0.3s;
+        }
+        
+        .nav-tab.active {
+            background: linear-gradient(135deg, #ff6b35, #f7931e);
+            color: #fff;
+        }
+        
+        .page {
+            display: none;
+        }
+        
+        .page.active {
+            display: block;
+        }
+        
+        .tip-card {
+            background: rgba(255, 107, 53, 0.1);
+            border: 1px solid rgba(255, 107, 53, 0.2);
+            border-radius: 12px;
+            padding: 16px;
+            margin-top: 16px;
+            font-size: 13px;
+            color: #ffaa7a;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🔥 热量计算器</h1>
+        <p>科学计算你的每日热量需求</p>
+    </div>
+    
+    <div class="container">
+        <div class="nav-tabs">
+            <button class="nav-tab active" onclick="showPage('bmr')">BMR</button>
+            <button class="nav-tab" onclick="showPage('tdee')">TDEE</button>
+            <button class="nav-tab" onclick="showPage('full')">完整评估</button>
+        </div>
+        
+        <div class="page active" id="page-bmr">
+            <div class="card">
+                <div class="card-title">👤 基本信息</div>
+                <div class="gender-select">
+                    <div class="gender-btn active" onclick="selectGender('male')">男</div>
+                    <div class="gender-btn female" onclick="selectGender('female')">女</div>
+                </div>
+                <div class="input-group">
+                    <label>体重 (kg)</label>
+                    <input type="number" class="input-field" id="bmr-weight" placeholder="例如: 70">
+                </div>
+                <div class="input-group">
+                    <label>身高 (cm)</label>
+                    <input type="number" class="input-field" id="bmr-height" placeholder="例如: 175">
+                </div>
+                <div class="input-group">
+                    <label>年龄 (岁)</label>
+                    <input type="number" class="input-field" id="bmr-age" placeholder="例如: 25">
+                </div>
+                <button class="calc-btn" onclick="calculateBMR()">计算 BMR</button>
+            </div>
+            
+            <div class="result-card" id="bmr-result">
+                <div class="result-title calories">⚡ 计算结果</div>
+                <div class="result-item">
+                    <span class="result-label">基础代谢率</span>
+                    <span class="result-value highlight" id="bmr-value">0 kcal</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">说明</span>
+                    <span class="result-value" style="font-size:13px;color:#8b92a8;text-align:right;">每天静息状态下<br>消耗的热量</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="page" id="page-tdee">
+            <div class="card">
+                <div class="card-title">👤 基本信息</div>
+                <div class="gender-select">
+                    <div class="gender-btn active" onclick="selectGender('male')">男</div>
+                    <div class="gender-btn female" onclick="selectGender('female')">女</div>
+                </div>
+                <div class="input-group">
+                    <label>体重 (kg)</label>
+                    <input type="number" class="input-field" id="tdee-weight" placeholder="例如: 70">
+                </div>
+                <div class="input-group">
+                    <label>身高 (cm)</label>
+                    <input type="number" class="input-field" id="tdee-height" placeholder="例如: 175">
+                </div>
+                <div class="input-group">
+                    <label>年龄 (岁)</label>
+                    <input type="number" class="input-field" id="tdee-age" placeholder="例如: 25">
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-title">🏃 活动水平</div>
+                <div class="option-list" id="activity-list">
+                    <div class="option-item active" data-value="1.2" onclick="selectActivity(this)">
+                        <div>
+                            <div class="option-name">久坐不动</div>
+                            <div class="option-desc">几乎不运动</div>
+                        </div>
+                    </div>
+                    <div class="option-item" data-value="1.375" onclick="selectActivity(this)">
+                        <div>
+                            <div class="option-name">轻度活动</div>
+                            <div class="option-desc">每周运动1-3天</div>
+                        </div>
+                    </div>
+                    <div class="option-item" data-value="1.55" onclick="selectActivity(this)">
+                        <div>
+                            <div class="option-name">中度活动</div>
+                            <div class="option-desc">每周运动3-5天</div>
+                        </div>
+                    </div>
+                    <div class="option-item" data-value="1.725" onclick="selectActivity(this)">
+                        <div>
+                            <div class="option-name">高度活动</div>
+                            <div class="option-desc">每周运动6-7天</div>
+                        </div>
+                    </div>
+                    <div class="option-item" data-value="1.9" onclick="selectActivity(this)">
+                        <div>
+                            <div class="option-name">极高活动</div>
+                            <div class="option-desc">专业训练/体力劳动</div>
+                        </div>
+                    </div>
+                </div>
+                <button class="calc-btn" onclick="calculateTDEE()">计算 TDEE</button>
+            </div>
+            
+            <div class="result-card" id="tdee-result">
+                <div class="result-title calories">🏃 计算结果</div>
+                <div class="result-item">
+                    <span class="result-label">基础代谢率 (BMR)</span>
+                    <span class="result-value" id="tdee-bmr">0 kcal</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">活动系数</span>
+                    <span class="result-value" id="tdee-multiplier">1.2</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">每日总消耗 (TDEE)</span>
+                    <span class="result-value highlight" id="tdee-value">0 kcal</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="page" id="page-full">
+            <div class="card">
+                <div class="card-title">👤 基本信息</div>
+                <div class="gender-select">
+                    <div class="gender-btn active" onclick="selectGender('male')">男</div>
+                    <div class="gender-btn female" onclick="selectGender('female')">女</div>
+                </div>
+                <div class="input-group">
+                    <label>体重 (kg)</label>
+                    <input type="number" class="input-field" id="full-weight" placeholder="例如: 70">
+                </div>
+                <div class="input-group">
+                    <label>身高 (cm)</label>
+                    <input type="number" class="input-field" id="full-height" placeholder="例如: 175">
+                </div>
+                <div class="input-group">
+                    <label>年龄 (岁)</label>
+                    <input type="number" class="input-field" id="full-age" placeholder="例如: 25">
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-title">🏃 活动水平</div>
+                <div class="option-list" id="full-activity-list">
+                    <div class="option-item active" data-value="1.2" onclick="selectFullActivity(this)">
+                        <div>
+                            <div class="option-name">久坐不动</div>
+                            <div class="option-desc">几乎不运动</div>
+                        </div>
+                    </div>
+                    <div class="option-item" data-value="1.375" onclick="selectFullActivity(this)">
+                        <div>
+                            <div class="option-name">轻度活动</div>
+                            <div class="option-desc">每周运动1-3天</div>
+                        </div>
+                    </div>
+                    <div class="option-item" data-value="1.55" onclick="selectFullActivity(this)">
+                        <div>
+                            <div class="option-name">中度活动</div>
+                            <div class="option-desc">每周运动3-5天</div>
+                        </div>
+                    </div>
+                    <div class="option-item" data-value="1.725" onclick="selectFullActivity(this)">
+                        <div>
+                            <div class="option-name">高度活动</div>
+                            <div class="option-desc">每周运动6-7天</div>
+                        </div>
+                    </div>
+                    <div class="option-item" data-value="1.9" onclick="selectFullActivity(this)">
+                        <div>
+                            <div class="option-name">极高活动</div>
+                            <div class="option-desc">专业训练/体力劳动</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-title">🎯 目标</div>
+                <div class="option-list" id="goal-list">
+                    <div class="option-item goal" data-value="-500" onclick="selectGoal(this)">
+                        <div>
+                            <div class="option-name">减脂</div>
+                            <div class="option-desc">每周减约0.5kg</div>
+                        </div>
+                    </div>
+                    <div class="option-item goal" data-value="-250" onclick="selectGoal(this)">
+                        <div>
+                            <div class="option-name">温和减脂</div>
+                            <div class="option-desc">每周减约0.25kg</div>
+                        </div>
+                    </div>
+                    <div class="option-item goal active" data-value="0" onclick="selectGoal(this)">
+                        <div>
+                            <div class="option-name">保持体重</div>
+                            <div class="option-desc">维持当前体重</div>
+                        </div>
+                    </div>
+                    <div class="option-item goal" data-value="250" onclick="selectGoal(this)">
+                        <div>
+                            <div class="option-name">温和增肌</div>
+                            <div class="option-desc">每周增约0.25kg</div>
+                        </div>
+                    </div>
+                    <div class="option-item goal" data-value="500" onclick="selectGoal(this)">
+                        <div>
+                            <div class="option-name">增肌</div>
+                            <div class="option-desc">每周增约0.5kg</div>
+                        </div>
+                    </div>
+                </div>
+                <button class="calc-btn" onclick="calculateFull()">生成完整报告</button>
+            </div>
+            
+            <div class="result-card" id="full-result">
+                <div class="result-title calories">📋 热量报告</div>
+                <div class="result-item">
+                    <span class="result-label">基础代谢率 (BMR)</span>
+                    <span class="result-value" id="full-bmr">0 kcal</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">活动系数</span>
+                    <span class="result-value" id="full-multiplier">1.2</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">每日总消耗 (TDEE)</span>
+                    <span class="result-value" id="full-tdee">0 kcal</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">热量调整</span>
+                    <span class="result-value" id="full-adjust">0 kcal</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">🎯 建议每日摄入</span>
+                    <span class="result-value highlight" id="full-target">0 kcal</span>
+                </div>
+            </div>
+            
+            <div class="result-card" id="macro-result">
+                <div class="result-title macro">🥗 营养素分配</div>
+                <div class="macro-bar">
+                    <div class="macro-header">
+                        <span class="macro-name">蛋白质</span>
+                        <span class="macro-value" id="protein-val">0g (30%)</span>
+                    </div>
+                    <div class="macro-progress">
+                        <div class="macro-fill protein" id="protein-bar" style="width: 30%"></div>
+                    </div>
+                </div>
+                <div class="macro-bar">
+                    <div class="macro-header">
+                        <span class="macro-name">脂肪</span>
+                        <span class="macro-value" id="fat-val">0g (30%)</span>
+                    </div>
+                    <div class="macro-progress">
+                        <div class="macro-fill fat" id="fat-bar" style="width: 30%"></div>
+                    </div>
+                </div>
+                <div class="macro-bar">
+                    <div class="macro-header">
+                        <span class="macro-name">碳水</span>
+                        <span class="macro-value" id="carb-val">0g (40%)</span>
+                    </div>
+                    <div class="macro-progress">
+                        <div class="macro-fill carb" id="carb-bar" style="width: 40%"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="tip-card" id="tip-card" style="display:none;">
+                💡 建议配合力量训练，蛋白质摄入1.6-2.2g/kg体重
+            </div>
+        </div>
+        
+        <div class="formula-info">
+            基于 Mifflin-St Jeor 公式计算<br>
+            仅供参考，请结合实际情况调整
+        </div>
+    </div>
+    
+    <script>
+        let gender = 'male';
+        let activityMultiplier = 1.2;
+        let goalAdjustment = 0;
+        
+        function showPage(page) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+            document.getElementById('page-' + page).classList.add('active');
+            event.target.classList.add('active');
+        }
+        
+        function selectGender(g) {
+            gender = g;
+            document.querySelectorAll('.gender-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+        
+        function selectActivity(el) {
+            document.querySelectorAll('#activity-list .option-item').forEach(item => item.classList.remove('active'));
+            el.classList.add('active');
+            activityMultiplier = parseFloat(el.dataset.value);
+        }
+        
+        function selectFullActivity(el) {
+            document.querySelectorAll('#full-activity-list .option-item').forEach(item => item.classList.remove('active'));
+            el.classList.add('active');
+            activityMultiplier = parseFloat(el.dataset.value);
+        }
+        
+        function selectGoal(el) {
+            document.querySelectorAll('#goal-list .option-item').forEach(item => item.classList.remove('active'));
+            el.classList.add('active');
+            goalAdjustment = parseInt(el.dataset.value);
+        }
+        
+        function calculateBMRFromInputs(weightId, heightId, ageId) {
+            const weight = parseFloat(document.getElementById(weightId).value);
+            const height = parseFloat(document.getElementById(heightId).value);
+            const age = parseInt(document.getElementById(ageId).value);
+            
+            if (!weight || !height || !age) {
+                alert('请填写所有字段');
+                return null;
+            }
+            
+            let bmr;
+            if (gender === 'male') {
+                bmr = 10 * weight + 6.25 * height - 5 * age + 5;
+            } else {
+                bmr = 10 * weight + 6.25 * height - 5 * age - 161;
+            }
+            return Math.round(bmr * 10) / 10;
+        }
+        
+        function calculateBMR() {
+            const bmr = calculateBMRFromInputs('bmr-weight', 'bmr-height', 'bmr-age');
+            if (bmr !== null) {
+                document.getElementById('bmr-value').textContent = bmr + ' kcal';
+                document.getElementById('bmr-result').classList.add('show');
+            }
+        }
+        
+        function calculateTDEE() {
+            const bmr = calculateBMRFromInputs('tdee-weight', 'tdee-height', 'tdee-age');
+            if (bmr === null) return;
+            
+            const tdee = Math.round(bmr * activityMultiplier * 10) / 10;
+            
+            document.getElementById('tdee-bmr').textContent = bmr + ' kcal';
+            document.getElementById('tdee-multiplier').textContent = activityMultiplier;
+            document.getElementById('tdee-value').textContent = tdee + ' kcal/天';
+            document.getElementById('tdee-result').classList.add('show');
+        }
+        
+        function calculateFull() {
+            const bmr = calculateBMRFromInputs('full-weight', 'full-height', 'full-age');
+            if (bmr === null) return;
+            
+            const tdee = Math.round(bmr * activityMultiplier * 10) / 10;
+            const target = Math.round((tdee + goalAdjustment) * 10) / 10;
+            
+            document.getElementById('full-bmr').textContent = bmr + ' kcal';
+            document.getElementById('full-multiplier').textContent = activityMultiplier;
+            document.getElementById('full-tdee').textContent = tdee + ' kcal';
+            document.getElementById('full-adjust').textContent = (goalAdjustment > 0 ? '+' : '') + goalAdjustment + ' kcal';
+            document.getElementById('full-target').textContent = target + ' kcal';
+            
+            let proteinRatio, fatRatio, carbRatio;
+            if (goalAdjustment < 0) {
+                proteinRatio = 0.35; fatRatio = 0.30; carbRatio = 0.35;
+            } else if (goalAdjustment > 0) {
+                proteinRatio = 0.30; fatRatio = 0.25; carbRatio = 0.45;
+            } else {
+                proteinRatio = 0.30; fatRatio = 0.30; carbRatio = 0.40;
+            }
+            
+            const protein = Math.round(target * proteinRatio / 4 * 10) / 10;
+            const fat = Math.round(target * fatRatio / 9 * 10) / 10;
+            const carb = Math.round(target * carbRatio / 4 * 10) / 10;
+            
+            document.getElementById('protein-val').textContent = protein + 'g (' + Math.round(proteinRatio * 100) + '%)';
+            document.getElementById('fat-val').textContent = fat + 'g (' + Math.round(fatRatio * 100) + '%)';
+            document.getElementById('carb-val').textContent = carb + 'g (' + Math.round(carbRatio * 100) + '%)';
+            
+            document.getElementById('protein-bar').style.width = (proteinRatio * 100) + '%';
+            document.getElementById('fat-bar').style.width = (fatRatio * 100) + '%';
+            document.getElementById('carb-bar').style.width = (carbRatio * 100) + '%';
+            
+            document.getElementById('full-result').classList.add('show');
+            document.getElementById('macro-result').classList.add('show');
+            
+            const tip = document.getElementById('tip-card');
+            if (goalAdjustment > 0) {
+                tip.textContent = '💡 增肌建议配合力量训练，蛋白质摄入1.6-2.2g/kg体重';
+                tip.style.display = 'block';
+            } else if (goalAdjustment < -500) {
+                tip.textContent = '⚠️ 热量缺口较大，建议每周减重不超过体重的1%';
+                tip.style.display = 'block';
+            } else if (goalAdjustment < 0) {
+                tip.textContent = '✅ 保持当前热量摄入，注意营养均衡';
+                tip.style.display = 'block';
+            } else {
+                tip.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>
